@@ -1,0 +1,28 @@
+You are performing PLANNING ONLY.
+
+Task:
+{{ task.title }}
+
+Question:
+{{ task.question }}
+
+Scope files:
+{% if task.scope.files %}
+{% for file in task.scope.files %}- {{ file }}
+{% endfor %}
+{% else %}- no files listed yet
+{% endif %}
+Constraints:
+{% for item in task.constraints %}- {{ item }}
+{% endfor %}
+
+Create a minimal execution plan.
+Do not modify code.
+Do not expand scope without explicitly stating why.
+
+Output exactly:
+1. Proposed implementation steps
+2. Files to change
+3. Risks and regressions to watch
+4. Verification steps
+5. Definition of done

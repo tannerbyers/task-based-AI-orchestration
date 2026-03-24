@@ -1,0 +1,29 @@
+You are performing SCOPED EXECUTION ONLY.
+
+Task:
+{{ task.title }}
+
+Goal:
+{{ task.question }}
+
+Files you may modify:
+{% if task.scope.files %}
+{% for file in task.scope.files %}- {{ file }}
+{% endfor %}
+{% else %}- no files listed yet
+{% endif %}
+Constraints:
+{% for item in task.constraints %}- {{ item }}
+{% endfor %}
+Definition of done:
+{% for item in task.expected_output %}- {{ item }}
+{% endfor %}
+Stop condition:
+{{ task.stop_condition }}
+
+Do not touch other files.
+Keep changes minimal.
+After proposing or applying changes, summarize:
+- files changed
+- risks
+- tests to run

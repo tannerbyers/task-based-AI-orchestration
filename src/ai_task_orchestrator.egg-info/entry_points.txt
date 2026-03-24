@@ -1,0 +1,2 @@
+[console_scripts]
+ai-task = ai_task.cli:app

@@ -1,0 +1,32 @@
+[project]
+name = "ai-task-orchestrator"
+version = "0.1.0"
+description = "Thin orchestration layer for task-based AI development"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+  { name = "OpenAI" }
+]
+dependencies = [
+  "typer>=0.12.3",
+  "pyyaml>=6.0.1",
+  "jinja2>=3.1.4",
+  "rich>=13.7.1"
+]
+
+[project.scripts]
+ai-task = "ai_task.cli:app"
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+ai_task = ["templates/*.j2"]

@@ -1,0 +1,24 @@
+You are performing REVIEW ONLY.
+
+Task:
+{{ task.title }}
+
+Question:
+{{ task.question }}
+
+Scoped files:
+{% if task.scope.files %}
+{% for file in task.scope.files %}- {{ file }}
+{% endfor %}
+{% else %}- no files listed yet
+{% endif %}
+Constraints:
+{% for item in task.constraints %}- {{ item }}
+{% endfor %}
+
+Review the current diff or proposed changes for:
+1. Regression risk
+2. Missing guards
+3. Edge cases
+4. Verification gaps
+5. Rollback concerns

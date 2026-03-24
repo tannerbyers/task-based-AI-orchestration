@@ -1,0 +1,46 @@
+You are performing INVESTIGATION ONLY.
+
+Task:
+{{ task.title }}
+
+Question:
+{{ task.question }}
+
+Symptoms:
+{% if task.symptoms %}
+{% for item in task.symptoms %}- {{ item }}
+{% endfor %}
+{% else %}- none provided
+{% endif %}
+Allowed scope:
+Files:
+{% if task.scope.files %}
+{% for file in task.scope.files %}- {{ file }}
+{% endfor %}
+{% else %}- no files listed yet
+{% endif %}
+Logs:
+{% if task.scope.logs %}
+{% for log in task.scope.logs %}- {{ log }}
+{% endfor %}
+{% else %}- none
+{% endif %}
+URLs:
+{% if task.scope.urls %}
+{% for url in task.scope.urls %}- {{ url }}
+{% endfor %}
+{% else %}- none
+{% endif %}
+Constraints:
+{% for item in task.constraints %}- {{ item }}
+{% endfor %}
+
+Do not modify code.
+Do not scan outside the listed scope.
+Do not infer beyond available evidence.
+
+Output exactly:
+1. Top 3 likely root causes, ranked
+2. Evidence supporting each
+3. Missing information
+4. Smallest next validation step
