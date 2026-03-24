@@ -53,6 +53,7 @@ class Task:
     repo_slug: str = ""
     branch: str = "main"
     workspace_branch: str = ""
+    original_remote_url: str = ""
     created_at: str = field(default_factory=lambda: dt.datetime.now().isoformat(timespec="seconds"))
 
     def to_dict(self) -> dict[str, Any]:

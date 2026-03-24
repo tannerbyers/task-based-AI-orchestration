@@ -75,6 +75,7 @@ This will:
 - cache the current repo as a reusable mirror,
 - create a new isolated workspace,
 - clone a clean copy into `workspace/repo`,
+- set up remotes (GitHub as "origin", cache as "cache"),
 - create a task branch like `ai-task/2026-03-24-improve-task-run`.
 
 ### 2. Scope the task files
