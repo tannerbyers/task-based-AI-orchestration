@@ -166,7 +166,7 @@ def task_create(
     task_dir = workspace_path / "task"
     task_dir.mkdir(parents=True, exist_ok=True)
     clone_task_workspace(cache_path, repo_path, branch)
-    
+
     # Set up remotes - cache as "cache" and original repo as "origin"
     # Always rename the initial remote to "cache" and set original repo as "origin"
     subprocess.run(["git", "remote", "rename", "origin", "cache"], cwd=repo_path, check=True)
