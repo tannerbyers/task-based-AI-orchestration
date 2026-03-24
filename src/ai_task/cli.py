@@ -64,7 +64,25 @@ def _load_task(task_path: Path) -> Task:
 
 def _render_stage(task: Task, stage: str) -> str:
     renderer = PromptRenderer(_template_dir())
-    return renderer.render(stage, task)
+    rendered = renderer.render(stage, task)
+    
+    # Add context from previous stages if available
+    if stage in ["plan", "execute", "review"]:
+        previous_context = []
+        
+        if stage in ["plan", "execute", "review"] and "investigate" in task.stage_artifacts:
+            previous_context.append("\n## Investigation Results\n\n" + task.stage_artifacts["investigate"])
+            
+        if stage in ["execute", "review"] and "plan" in task.stage_artifacts:
+            previous_context.append("\n## Plan\n\n" + task.stage_artifacts["plan"])
+            
+        if stage == "review" and "execute" in task.stage_artifacts:
+            previous_context.append("\n## Execution\n\n" + task.stage_artifacts["execute"])
+            
+        if previous_context:
+            rendered += "\n\n# Previous Stage Context\n" + "".join(previous_context)
+    
+    return rendered
 
 
 def _write_stage_artifact(task_path: Path, stage: str, content: str) -> Path:
@@ -207,6 +225,16 @@ def task_stage(task_path: Path, stage: str):
     if stage not in DEFAULT_STAGE_ARTIFACTS:
         raise typer.BadParameter(f"Invalid stage: {stage}")
     task = _load_task(task_path)
+    
+    # Save the current stage artifact content if it exists
+    current_stage = task.stage
+    if current_stage in DEFAULT_STAGE_ARTIFACTS:
+        artifact_path = _workspace_task_dir(task_path) / DEFAULT_STAGE_ARTIFACTS[current_stage]
+        if artifact_path.exists():
+            content = artifact_path.read_text(encoding="utf-8")
+            if content.strip():  # Only save non-empty artifacts
+                task.stage_artifacts[current_stage] = content
+    
     task.stage = stage
     task.write(_task_yaml(task_path))
     console.print(f"[green]Stage set to:[/green] {stage}")
@@ -231,6 +259,12 @@ def task_show(task_path: Path):
     table.add_row("Stop condition", task.stop_condition or "-")
     table.add_row("Changed files", str(changed_count))
     table.add_row("Status", "\n".join(changed[:10]) or "clean")
+    
+    # Show completed stages
+    completed_stages = list(task.stage_artifacts.keys())
+    if completed_stages:
+        table.add_row("Completed stages", ", ".join(completed_stages))
+    
     console.print(table)
 
 
@@ -291,9 +325,13 @@ def task_run(
         raise typer.BadParameter(f"Invalid stage: {active_stage}")
 
     task.stage = active_stage
-    task.write(_task_yaml(task_path))
     rendered = message or _render_stage(task, active_stage)
     artifact = _write_stage_artifact(task_path, active_stage, rendered)
+    
+    # Save the rendered prompt to the task's stage artifacts
+    task.stage_artifacts[active_stage] = rendered
+    task.write(_task_yaml(task_path))
+    
     repo_root = _workspace_repo(task_path)
 
     if tool == "print":

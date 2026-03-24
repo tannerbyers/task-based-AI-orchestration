@@ -177,7 +177,16 @@ Its job is to impose operational boundaries:
 - stage separation,
 - cached repos,
 - isolated task workspaces,
-- repeatable artifacts.
+- repeatable artifacts,
+- preserved context across stages.
+
+## Features
+
+- Preserves investigation results and explicit human decisions across plan and execute stages
+- Maintains context between stages to ensure continuity in the development process
+- Isolates task workspaces to prevent state pollution
+- Enforces scoped file access to prevent repository-wide scanning
+- Structures development through explicit stages (investigate, plan, execute, review)
 
 ## Immediate next additions worth building
 
