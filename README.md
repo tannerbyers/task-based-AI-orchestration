@@ -31,16 +31,31 @@ This repo is now at the point where you can dogfood it with Aider:
 
 ## Install
 
-### With uv
+Run the install script:
 
 ```bash
-uv tool install -e .
+bash install.sh
 ```
 
-### With pip
+This will:
+- Check for Python 3.11+
+- Create a virtual environment (.venv)
+- Install the package in the virtual environment
+- Provide instructions to activate the environment
+
+After installation, activate the virtual environment:
 
 ```bash
-pip install -e .
+source .venv/bin/activate
+```
+
+Then you can use the `ai-task` command.
+
+Note: If you prefer to run the script directly with `./install.sh`, you may need to make it executable first:
+
+```bash
+chmod +x install.sh
+./install.sh
 ```
 
 ## Core commands
