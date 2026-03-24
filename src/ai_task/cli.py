@@ -370,6 +370,29 @@ def task_run(
 
     subprocess.run(cmd, cwd=repo_root, check=True)
 
+    # After tool execution, capture the results
+    # For aider, we need to check the artifact file to see if it was modified
+    if artifact.exists():
+        # Read the updated content from the artifact file
+        updated_content = artifact.read_text(encoding="utf-8")
+        
+        # If the content is different from the original prompt, it means the tool modified it
+        if updated_content != rendered:
+            # Store the updated content in the task's stage_results
+            task.stage_results[active_stage] = updated_content
+            task.write(_task_yaml(task_path))
+            console.print(f"[green]Updated stage results for:[/green] {active_stage}")
+        else:
+            # If aider didn't modify the file directly, we need to check if there are changes in the repo
+            changed_count, _ = working_tree_summary(repo_root)
+            if changed_count > 0:
+                # There were changes to the repo, so we should consider the stage successful
+                # We'll save the original prompt as the result for now
+                task.stage_results[active_stage] = updated_content
+                task.write(_task_yaml(task_path))
+                console.print(f"[green]Saved stage results for:[/green] {active_stage}")
+                console.print(f"[yellow]Note:[/yellow] Tool made changes to the repo but didn't update the artifact file.")
+
 
 @workspace_app.command("list")
 def workspace_list():
