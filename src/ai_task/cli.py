@@ -70,14 +70,14 @@ def _render_stage(task: Task, stage: str) -> str:
     if stage in ["plan", "execute", "review"]:
         previous_context = []
         
-        if stage in ["plan", "execute", "review"] and "investigate" in task.stage_artifacts:
-            previous_context.append("\n## Investigation Results\n\n" + task.stage_artifacts["investigate"])
+        if stage in ["plan", "execute", "review"] and "investigate" in task.stage_results:
+            previous_context.append("\n## Investigation Results\n\n" + task.stage_results["investigate"])
             
-        if stage in ["execute", "review"] and "plan" in task.stage_artifacts:
-            previous_context.append("\n## Plan\n\n" + task.stage_artifacts["plan"])
+        if stage in ["execute", "review"] and "plan" in task.stage_results:
+            previous_context.append("\n## Plan\n\n" + task.stage_results["plan"])
             
-        if stage == "review" and "execute" in task.stage_artifacts:
-            previous_context.append("\n## Execution\n\n" + task.stage_artifacts["execute"])
+        if stage == "review" and "execute" in task.stage_results:
+            previous_context.append("\n## Execution\n\n" + task.stage_results["execute"])
             
         if previous_context:
             rendered += "\n\n# Previous Stage Context\n" + "".join(previous_context)
@@ -168,9 +168,9 @@ def task_create(
     clone_task_workspace(cache_path, repo_path, branch)
     
     # Set up remotes - cache as "cache" and original repo as "origin"
-    if repo_url.startswith(("https://github.com", "git@github.com")):
-        subprocess.run(["git", "remote", "rename", "origin", "cache"], cwd=repo_path, check=True)
-        subprocess.run(["git", "remote", "add", "origin", repo_url], cwd=repo_path, check=True)
+    # Always rename the initial remote to "cache" and set original repo as "origin"
+    subprocess.run(["git", "remote", "rename", "origin", "cache"], cwd=repo_path, check=True)
+    subprocess.run(["git", "remote", "add", "origin", repo_url], cwd=repo_path, check=True)
 
     workspace_branch = f"ai-task/{date_prefix}-{task_slug}"
     subprocess.run(["git", "checkout", "-b", workspace_branch], cwd=repo_path, check=True)
@@ -239,7 +239,8 @@ def task_stage(task_path: Path, stage: str):
         if artifact_path.exists():
             content = artifact_path.read_text(encoding="utf-8")
             if content.strip():  # Only save non-empty artifacts
-                task.stage_artifacts[current_stage] = content
+                # Store the content as a result, not the prompt
+                task.stage_results[current_stage] = content
     
     task.stage = stage
     task.write(_task_yaml(task_path))
@@ -267,7 +268,7 @@ def task_show(task_path: Path):
     table.add_row("Status", "\n".join(changed[:10]) or "clean")
     
     # Show completed stages
-    completed_stages = list(task.stage_artifacts.keys())
+    completed_stages = list(task.stage_results.keys())
     if completed_stages:
         table.add_row("Completed stages", ", ".join(completed_stages))
     
@@ -336,6 +337,7 @@ def task_run(
     
     # Save the rendered prompt to the task's stage artifacts
     task.stage_artifacts[active_stage] = rendered
+    # Don't overwrite existing stage results when running a tool
     task.write(_task_yaml(task_path))
     
     repo_root = _workspace_repo(task_path)
