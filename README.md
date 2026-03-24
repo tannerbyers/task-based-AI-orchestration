@@ -188,6 +188,7 @@ Its job is to impose operational boundaries:
 - Isolates task workspaces to prevent state pollution
 - Enforces scoped file access to prevent repository-wide scanning
 - Structures development through explicit stages (investigate, plan, execute, review)
+- Properly persists stage results separately from prompts for better context preservation
 
 ## Immediate next additions worth building
 

@@ -56,6 +56,7 @@ class Task:
     original_remote_url: str = ""
     created_at: str = field(default_factory=lambda: dt.datetime.now().isoformat(timespec="seconds"))
     stage_artifacts: dict[str, str] = field(default_factory=dict)
+    stage_results: dict[str, str] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
