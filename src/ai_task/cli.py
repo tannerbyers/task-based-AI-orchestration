@@ -168,9 +168,9 @@ def task_create(
     clone_task_workspace(cache_path, repo_path, branch)
     
     # Set up remotes - cache as "cache" and original repo as "origin"
-    if repo_url.startswith(("https://github.com", "git@github.com")):
-        subprocess.run(["git", "remote", "rename", "origin", "cache"], cwd=repo_path, check=True)
-        subprocess.run(["git", "remote", "add", "origin", repo_url], cwd=repo_path, check=True)
+    # Always rename the initial remote to "cache" and set original repo as "origin"
+    subprocess.run(["git", "remote", "rename", "origin", "cache"], cwd=repo_path, check=True)
+    subprocess.run(["git", "remote", "add", "origin", repo_url], cwd=repo_path, check=True)
 
     workspace_branch = f"ai-task/{date_prefix}-{task_slug}"
     subprocess.run(["git", "checkout", "-b", workspace_branch], cwd=repo_path, check=True)
