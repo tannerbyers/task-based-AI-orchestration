@@ -25,8 +25,10 @@ build-backend = "setuptools.build_meta"
 package-dir = {"" = "src"}
 include-package-data = true
 
-[tool.setuptools.packages.find]
-where = ["src"]
-
 [tool.setuptools.package-data]
 ai_task = ["templates/*.j2"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["ai_task*"]
+namespaces = false
