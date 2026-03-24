@@ -54,6 +54,7 @@ class Task:
     branch: str = "main"
     workspace_branch: str = ""
     created_at: str = field(default_factory=lambda: dt.datetime.now().isoformat(timespec="seconds"))
+    stage_artifacts: dict[str, str] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
