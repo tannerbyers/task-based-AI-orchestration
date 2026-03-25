@@ -275,6 +275,75 @@ def task_show(task_path: Path):
     console.print(table)
 
 
+@task_app.command("status")
+def task_status(task_path: Path):
+    """Show detailed status of a task workspace including files, artifacts, and git state."""
+    task = _load_task(task_path)
+    repo_root = _workspace_repo(task_path)
+    task_dir = _workspace_task_dir(task_path)
+
+    # Get git status
+    changed_count, changed_files = working_tree_summary(repo_root)
+    current_branch_name = current_branch(repo_root)
+
+    # Check artifact files
+    artifacts = {}
+    for stage, filename in DEFAULT_STAGE_ARTIFACTS.items():
+        artifact_path = task_dir / filename
+        exists = artifact_path.exists()
+        has_content = exists and artifact_path.stat().st_size > 0
+        artifacts[stage] = {
+            "exists": exists,
+            "has_content": has_content,
+            "path": artifact_path,
+        }
+
+    # Build and display status table
+    table = Table(title=f"Task Status: {task.id}")
+
+    # Basic info section
+    table.add_section()
+    table.add_row("Title", task.title)
+    table.add_row("Current Stage", task.stage)
+    table.add_row("Question", task.question)
+
+    # Git status section
+    table.add_section()
+    table.add_row("Git Branch", current_branch_name)
+    table.add_row("Base Branch", task.branch)
+    table.add_row("Changed Files", f"{changed_count} file(s)")
+    if changed_count > 0:
+        table.add_row(
+            "Modified",
+            "\n".join(changed_files[:10])
+            + (f"\n... and {len(changed_files) - 10} more" if len(changed_files) > 10 else ""),
+        )
+
+    # Scope section
+    table.add_section()
+    table.add_row("Scoped Files", str(len(task.scope.files)))
+    if task.scope.files:
+        table.add_row("Files", "\n".join(task.scope.files))
+
+    # Artifacts section
+    table.add_section()
+    for stage, info in artifacts.items():
+        if info["has_content"]:
+            status = "[green]✓[/green]"
+        elif info["exists"]:
+            status = "[yellow]empty[/yellow]"
+        else:
+            status = "[red]missing[/red]"
+        table.add_row(f"Artifact: {stage}", status)
+
+    # Completed stages
+    if task.stage_results:
+        table.add_section()
+        table.add_row("Completed Stages", ", ".join(task.stage_results.keys()))
+
+    console.print(table)
+
+
 @task_app.command("validate")
 def task_validate(task_path: Path):
     """Validate task file requirements and scope size."""
